@@ -4,54 +4,31 @@ Bharat Guard: A tactical AI system on Databricks securing 75 border sectors. It 
 What it does:
 Bharat Guard is a tactical intelligence platform that monitors 75 hexagonal border sectors by fusing real-time environmental sensors with AI-processed news alerts. It uses a Deep Learning Autoencoder to detect security and terrain anomalies, providing a unified risk score for border surveillance.
 
-graph TD %% GOVERNANCE WRAPPER subgraph UC ["🛡️ Databricks Unity Catalog (Governance, Lineage & Access Control)"]
-
-    %% DATA SOURCES (EXTERNAL)
-    subgraph External_Data ["🌐 External Sensor & Satellite Data"]
-        Topo[OpenTopography API]
-        NASA[NASA LAADS DAAC]
-        Weather[Open-Meteo API]
-    end
-
-    %% INGESTION
-    External_Data -->|Apache Spark Ingestion| Bronze_Delta
-
-    %% BRONZE LAYER
-    subgraph Bronze_Delta ["🥉 Bronze Layer (Raw Delta Tables)"]
-        RawTopo[[raw_topography]]
-        RawNASA[[raw_nasa_satellite]]
-        RawWeather[[raw_weather_data]]
-    end
-
-    %% SILVER LAYER
-    subgraph Silver_Delta ["🥈 Silver Layer (Cleaned & Feature Engineered)"]
-        CleanTopo[[silver_topography]]
-        CleanNASA[[silver_satellite]]
-        CleanWeather[[silver_weather]]
-        HexGrid[[unified_75_hex_features]]
-    end
-
-    Bronze_Delta -->|Spark SQL / DataFrames| CleanTopo & CleanNASA & CleanWeather
-    CleanTopo & CleanNASA & CleanWeather -->|Spatial Join| HexGrid
-
-    %% ML ENGINE (NO MLFLOW)
-    subgraph ML_Engine ["🧠 AI Compute (Databricks Cluster)"]
-        Autoencoder[Deep Learning Autoencoder]
-    end
-
-    HexGrid -->|Input Terrain & Weather Features| Autoencoder
+graph LR
+    %% THEORETICAL STEPS
+    Input[Multimodal Inputs <br/> Terrain + Satellite + Weather]
+    Fusion[Geospatial <br/> Feature Fusion]
+    Latent[Latent Space <br/> Compression]
+    Recon[Reconstruction <br/> Logic]
+    Error{Error Delta}
     
-    %% GOLD LAYER
-    subgraph Gold_Delta ["🥇 Gold Layer (Tactical Threat Intelligence)"]
-        AnomalyScores[[gold_anomaly_scores]]
-        TacticalView[[gold_tactical_hex_grid]]
-    end
+    %% OUTCOMES
+    Normal[Normal State]
+    Anomaly[Tactical Anomaly]
 
-    Autoencoder -.->|Writes Reconstruction Error| AnomalyScores
-    HexGrid -->|Contextual Base Data| TacticalView
-    AnomalyScores -->|Fuses Threat Score| TacticalView
-end
+    %% CONNECTORS
+    Input --> Fusion
+    Fusion --> Latent
+    Latent --> Recon
+    Recon --> Error
+    
+    Error -- Low --> Normal
+    Error -- High --> Anomaly
 
+    %% Styling
+    style Input fill:#fff
+    style Latent fill:#e1f5fe,stroke:#01579b
+    style Anomaly fill:#ffebee,stroke:#c62828,color:#c62828
 %% SERVING LAYER
 subgraph Serving_Layer ["📊 Application & Serving Layer"]
     DBSQL[Databricks SQL Endpoints]
