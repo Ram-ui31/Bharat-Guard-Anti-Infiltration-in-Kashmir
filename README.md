@@ -6,22 +6,21 @@ Bharat Guard is a tactical intelligence platform that monitors 75 hexagonal bord
 ### 🛡️ Technical Architecture
 This diagram illustrates the end-to-end data pipeline within the Databricks Lakehouse, governed by Unity Catalog and following the Medallion Architecture.
 
-```mermaid
 graph TD
-    subgraph Sources [🌐 External Data]
+    subgraph Sources [External Data]
         Topo[OpenTopography API]
         NASA[NASA LAADS DAAC]
         Weather[Open-Meteo API]
     end
 
-    subgraph UC [🛡️ Databricks Unity Catalog]
-        subgraph Medallion [🏅 Medallion Architecture]
-            Bronze[(🥉 Bronze: Raw Delta)]
-            Silver[(🥈 Silver: Cleaned Features)]
-            Gold[(🥇 Gold: Threat Intel)]
+    subgraph UC [Databricks Unity Catalog]
+        subgraph Medallion [Medallion Architecture]
+            Bronze[(Bronze: Raw Delta)]
+            Silver[(Silver: Cleaned Features)]
+            Gold[(Gold: Threat Intel)]
         end
 
-        subgraph Compute [⚙️ Databricks Compute]
+        subgraph Compute [Databricks Compute]
             Spark[Apache Spark ETL]
             AE{{Autoencoder Model}}
         end
@@ -32,7 +31,7 @@ graph TD
     Silver --> AE
     AE -.->|Anomaly Score| Gold
     
-    subgraph Serving [📊 Serving Layer]
+    subgraph Serving [Serving Layer]
         SQL[Databricks SQL]
         App[Streamlit App]
     end
