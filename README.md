@@ -6,6 +6,7 @@ Bharat Guard is a tactical intelligence platform that monitors 75 hexagonal bord
 ### 🛡️ Technical Architecture
 This diagram illustrates the end-to-end data pipeline within the Databricks Lakehouse, governed by Unity Catalog and following the Medallion Architecture.
 
+```mermaid
 graph TD
     subgraph Sources [External Data]
         Topo[OpenTopography API]
@@ -15,28 +16,29 @@ graph TD
 
     subgraph UC [Databricks Unity Catalog]
         subgraph Medallion [Medallion Architecture]
-            Bronze[(Bronze: Raw Delta)]
-            Silver[(Silver: Cleaned Features)]
-            Gold[(Gold: Threat Intel)]
+            Bronze[Bronze: Raw Delta]
+            Silver[Silver: Cleaned Features]
+            Gold[Gold: Threat Intel]
         end
 
         subgraph Compute [Databricks Compute]
             Spark[Apache Spark ETL]
-            AE{{Autoencoder Model}}
+            AE[Autoencoder Model]
         end
     end
 
     Sources --> Bronze
     Bronze --> Spark --> Silver
     Silver --> AE
-    AE -.->|Anomaly Score| Gold
-    
+    AE -->|Anomaly Score| Gold
+
     subgraph Serving [Serving Layer]
         SQL[Databricks SQL]
         App[Streamlit App]
     end
 
     Gold --> SQL --> App
+```
 
 🛡️ Bharat Guard: Theoretical Architecture I. The Multi-Source Ingestion Layer (The Sensors) The system operates on a Multimodal Data Fusion theory. It assumes that no single data source is sufficient for border security. Instead, it correlates:
 
@@ -63,6 +65,7 @@ Decoding: The model attempts to reconstruct the original input from this compres
 The Theory of Reconstruction Error: If the model receives input it has never seen before (e.g., a sudden thermal spike in a high-slope area during a fog event), it will fail to reconstruct it accurately. This High Reconstruction Error is theoretically defined as a Tactical Anomaly.
 
 IV. The Governance & Serving Theory (The Interface) The architecture is wrapped in Unity Catalog, which ensures Data Lineage—meaning every threat score in the Gold layer can be traced back to the exact NASA or Weather packet that triggered it. This provides "Explainable AI" for tactical commanders.
+```mermaid
 graph LR
     Input[Multimodal Inputs] --> Fusion[Feature Fusion]
     Fusion --> Latent[Latent Space Compression]
@@ -71,3 +74,4 @@ graph LR
     
     Error -- Low --> Normal[Normal State]
     Error -- High --> Anomaly[Tactical Anomaly]
+```
