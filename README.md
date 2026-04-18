@@ -3,57 +3,41 @@ Bharat Guard: A tactical AI system on Databricks securing 75 border sectors. It 
 
 What it does:
 Bharat Guard is a tactical intelligence platform that monitors 75 hexagonal border sectors by fusing real-time environmental sensors with AI-processed news alerts. It uses a Deep Learning Autoencoder to detect security and terrain anomalies, providing a unified risk score for border surveillance.
+### 🛡️ Technical Architecture
+This diagram illustrates the end-to-end data pipeline within the Databricks Lakehouse, governed by Unity Catalog and following the Medallion Architecture.
 
-graph LR
-    %% THEORETICAL STEPS
-    Input[Multimodal Inputs <br/> Terrain + Satellite + Weather]
-    Fusion[Geospatial <br/> Feature Fusion]
-    Latent[Latent Space <br/> Compression]
-    Recon[Reconstruction <br/> Logic]
-    Error{Error Delta}
+```mermaid
+graph TD
+    subgraph Sources [🌐 External Data]
+        Topo[OpenTopography API]
+        NASA[NASA LAADS DAAC]
+        Weather[Open-Meteo API]
+    end
+
+    subgraph UC [🛡️ Databricks Unity Catalog]
+        subgraph Medallion [🏅 Medallion Architecture]
+            Bronze[(🥉 Bronze: Raw Delta)]
+            Silver[(🥈 Silver: Cleaned Features)]
+            Gold[(🥇 Gold: Threat Intel)]
+        end
+
+        subgraph Compute [⚙️ Databricks Compute]
+            Spark[Apache Spark ETL]
+            AE{{Autoencoder Model}}
+        end
+    end
+
+    Sources --> Bronze
+    Bronze --> Spark --> Silver
+    Silver --> AE
+    AE -.->|Anomaly Score| Gold
     
-    %% OUTCOMES
-    Normal[Normal State]
-    Anomaly[Tactical Anomaly]
+    subgraph Serving [📊 Serving Layer]
+        SQL[Databricks SQL]
+        App[Streamlit App]
+    end
 
-    %% CONNECTORS
-    Input --> Fusion
-    Fusion --> Latent
-    Latent --> Recon
-    Recon --> Error
-    
-    Error -- Low --> Normal
-    Error -- High --> Anomaly
-
-    %% Styling
-    style Input fill:#fff
-    style Latent fill:#e1f5fe,stroke:#01579b
-    style Anomaly fill:#ffebee,stroke:#c62828,color:#c62828
-%% SERVING LAYER
-subgraph Serving_Layer ["📊 Application & Serving Layer"]
-    DBSQL[Databricks SQL Endpoints]
-    Streamlit[Databricks App: Streamlit UI]
-end
-
-Gold_Delta -->|Optimized Queries| DBSQL
-DBSQL -->|Feeds Dashboard| Streamlit
-Gold_Delta -->|Direct Read| Streamlit
-
-%% Styling
-classDef External fill:#fff,stroke:#333,stroke-width:2px,stroke-dasharray: 5 5;
-classDef DeltaTable fill:#ffe082,stroke:#333,stroke-width:1px;
-classDef AI fill:#90caf9,stroke:#333,stroke-width:2px;
-classDef UC_Style fill:#f8f9fa,stroke:#00509e,stroke-width:2px,stroke-dasharray: 2 2;
-classDef Serving fill:#e8f5e9,stroke:#2e7d32,stroke-width:2px;
-
-class Topo,NASA,Weather External;
-class RawTopo,RawNASA,RawWeather,CleanTopo,CleanNASA,CleanWeather,HexGrid,AnomalyScores,TacticalView DeltaTable;
-class Autoencoder AI;
-class UC UC_Style;
-class DBSQL,Streamlit Serving;
-For your theoretical architecture, you want to move away from the "coding blocks" and explain the conceptual logic of how Bharat Guard actually works. This is what you would put in a research paper or a high-level project summary.
-
-It’s based on the "Sense-Analyze-Respond" framework, specifically using Unsupervised Learning for anomaly detection.
+    Gold --> SQL --> App
 
 🛡️ Bharat Guard: Theoretical Architecture I. The Multi-Source Ingestion Layer (The Sensors) The system operates on a Multimodal Data Fusion theory. It assumes that no single data source is sufficient for border security. Instead, it correlates:
 
@@ -80,11 +64,11 @@ Decoding: The model attempts to reconstruct the original input from this compres
 The Theory of Reconstruction Error: If the model receives input it has never seen before (e.g., a sudden thermal spike in a high-slope area during a fog event), it will fail to reconstruct it accurately. This High Reconstruction Error is theoretically defined as a Tactical Anomaly.
 
 IV. The Governance & Serving Theory (The Interface) The architecture is wrapped in Unity Catalog, which ensures Data Lineage—meaning every threat score in the Gold layer can be traced back to the exact NASA or Weather packet that triggered it. This provides "Explainable AI" for tactical commanders.
-
-graph LR A[Multimodal Input] --> B{Feature Fusion} B --> C[Autoencoder Bottleneck] C --> D[Reconstruction Logic] D --> E{Error Delta Check} E -- Low Error --> F[Normal Operations] E -- High Error --> G[Tactical Anomaly Alert] G --> H[Streamlit Decision Interface]
-    B --> C[Autoencoder Bottleneck]
-    C --> D[Reconstruction Logic]
-    D --> E{Error Delta Check}
-    E -- Low Error --> F[Normal Operations]
-    E -- High Error --> G[Tactical Anomaly Alert]
-    G --> H[Streamlit Decision Interface]
+graph LR
+    Input[Multimodal Inputs] --> Fusion[Feature Fusion]
+    Fusion --> Latent[Latent Space Compression]
+    Latent --> Recon[Reconstruction Logic]
+    Recon --> Error{Error Delta}
+    
+    Error -- Low --> Normal[Normal State]
+    Error -- High --> Anomaly[Tactical Anomaly]
